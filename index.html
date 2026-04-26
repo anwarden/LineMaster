@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LineMaster</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="stylesheet" href="/src/styles/app.css" />
+</head>
+<body>
+  <div class="bg-mesh"></div>
+  <div class="bg-grain"></div>
+
+  <div id="three-root"></div>
+  <div class="dim-vignette"></div>
+  <canvas id="fx-layer"></canvas>
+  <div class="popup-layer" id="popup-layer"></div>
+  <div class="peel-flash" id="peel-flash"></div>
+
+  <div id="ui">
+    <div class="header">
+      <div class="logo">LINEMASTER</div>
+      <div class="level-info" id="level-info">LEVEL 01</div>
+      <div class="instruction" id="instruction">Match the glowing colors</div>
+    </div>
+  </div>
+
+  <div id="score-display">0</div>
+
+  <!-- Back-to-levels button — visible only during play. -->
+  <button class="back-btn" id="btn-back" hidden>← Levels</button>
+
+  <button class="dimension-toggle" id="dimension-toggle" hidden aria-label="Flip dimension">
+    <svg class="flip-icon" viewBox="0 0 48 48" aria-hidden="true">
+      <!-- Top: round node (surface) -->
+      <circle cx="24" cy="9" r="6" fill="currentColor" />
+      <!-- Curved arrows showing 180° flip -->
+      <path d="M14 11 Q3 13 3 24 Q3 35 14 37" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
+      <polyline points="11 33 14 37 11 41" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M34 37 Q45 35 45 24 Q45 13 34 11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
+      <polyline points="37 15 34 11 37 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+      <!-- Bottom: diamond node (tunnel) — same colour fill so it reads as silhouette pair -->
+      <g transform="rotate(45 24 39)">
+        <rect x="18" y="33" width="12" height="12" fill="currentColor" />
+      </g>
+    </svg>
+    <span id="dim-text" class="flip-label">SURFACE</span>
+  </button>
+
+  <div id="error-flash"></div>
+
+  <!-- ===================== EDITOR TOOLBAR =====================
+       Visible only when body has the `editor-mode` class. Two prominent
+       actions: copy the current layout to clipboard / play-test it. -->
+  <div id="editor-toolbar">
+    <button class="editor-btn editor-test" id="btn-editor-test">▶ TEST LEVEL</button>
+    <button class="editor-btn editor-export" id="btn-editor-export">⬇ EXPORT</button>
+  </div>
+
+  <!-- ===================== TITLE SCREEN ===================== -->
+  <div class="modal" id="start-overlay">
+    <h1>LINE<span class="accent">MASTER</span></h1>
+    <p class="modal-tagline">Connect matching dots. Don't cross your own lines. Switch layers when you're stuck.</p>
+    <button class="btn primary" id="btn-start">PLAY</button>
+  </div>
+
+  <!-- ===================== LEVEL SELECT ===================== -->
+  <div class="modal" id="level-select-overlay" hidden>
+    <div class="level-select-panel">
+      <h2 class="level-select-title">SELECT LEVEL</h2>
+      <div class="level-cards">
+        <button class="level-card" data-level-idx="0">
+          <div class="level-num">01</div>
+          <div class="level-card-name">Warmup</div>
+          <div class="level-card-hint">Match the glowing colors</div>
+        </button>
+        <button class="level-card" data-level-idx="1">
+          <div class="level-num">02</div>
+          <div class="level-card-name">No Cross</div>
+          <div class="level-card-hint">Lines must not intersect</div>
+        </button>
+        <button class="level-card" data-level-idx="2">
+          <div class="level-num">03</div>
+          <div class="level-card-name">Dimensions</div>
+          <div class="level-card-hint">Flip the world to dodge crossings</div>
+        </button>
+        <button class="level-card level-card-editor" data-action="editor">
+          <div class="level-num">+</div>
+          <div class="level-card-name">Editor</div>
+          <div class="level-card-hint">Build your own layout</div>
+        </button>
+      </div>
+      <button class="btn ghost" id="btn-back-to-title">← Title</button>
+    </div>
+  </div>
+
+  <!-- ===================== VICTORY ===================== -->
+  <div class="modal" id="win-overlay" hidden>
+    <h1>VICTORY</h1>
+    <p class="modal-message">You finished all three levels.<br>You are a Flow Master.</p>
+    <button class="btn primary" id="btn-replay">BACK TO TITLE</button>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

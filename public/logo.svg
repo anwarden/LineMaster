@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid meet">
+  <title>LineMaster</title>
+  <defs>
+    <!-- ===== GRADIENTS — same 4-stop palette as the in-game .logo CSS ===== -->
+    <linearGradient id="rope" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#FF006E"/>
+      <stop offset="33%"  stop-color="#FFE600"/>
+      <stop offset="66%"  stop-color="#00F5FF"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+    <radialGradient id="bg" cx="0.5" cy="0.45" r="0.7">
+      <stop offset="0%"   stop-color="#3a1e5c"/>
+      <stop offset="60%"  stop-color="#1a0f2e"/>
+      <stop offset="100%" stop-color="#0a0518"/>
+    </radialGradient>
+
+    <!-- ===== FILTERS ===== -->
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="14" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+
+    <!-- ===== Reusable cap pieces (round vs diamond — game-signature asymmetry) ===== -->
+    <symbol id="capRound" viewBox="-100 -100 200 200">
+      <circle r="92" fill="#FF006E" filter="url(#softGlow)" opacity="0.7"/>
+      <circle r="92" fill="#FF006E"/>
+      <circle r="34" fill="#fff"/>
+    </symbol>
+    <symbol id="capDiamond" viewBox="-100 -100 200 200">
+      <g transform="rotate(45)">
+        <rect x="-80" y="-80" width="160" height="160" fill="#00F5FF" filter="url(#softGlow)" opacity="0.7"/>
+        <rect x="-80" y="-80" width="160" height="160" fill="#00F5FF"/>
+        <rect x="-30" y="-30" width="60"  height="60"  fill="#fff"/>
+      </g>
+    </symbol>
+  </defs>
+
+  <!-- ===== BACKGROUND ===== -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- subtle world grid — same look as the in-game floor -->
+  <g stroke="#ffffff" stroke-width="1" opacity="0.05">
+    <path d="M 0 128 H1024 M 0 256 H1024 M 0 384 H1024 M 0 512 H1024 M 0 640 H1024 M 0 768 H1024 M 0 896 H1024"/>
+    <path d="M 128 0 V1024 M 256 0 V1024 M 384 0 V1024 M 512 0 V1024 M 640 0 V1024 M 768 0 V1024 M 896 0 V1024"/>
+  </g>
+
+  <!-- ===== ROPE — curving connection from PINK round to CYAN diamond.
+       Centred + scaled up since the wordmark is gone. ===== -->
+  <g filter="url(#glow)">
+    <path d="M 200 460 C 380 300, 644 720, 824 510"
+          stroke="url(#rope)" stroke-width="56" stroke-linecap="round"
+          fill="none" opacity="0.45"/>
+    <path d="M 200 460 C 380 300, 644 720, 824 510"
+          stroke="url(#rope)" stroke-width="30" stroke-linecap="round"
+          fill="none"/>
+    <path d="M 200 460 C 380 300, 644 720, 824 510"
+          stroke="#fff" stroke-width="8" stroke-linecap="round"
+          fill="none" opacity="0.85"/>
+  </g>
+
+  <!-- ===== STATIONS — bigger to fill the canvas ===== -->
+  <use href="#capRound"   x="60"  y="320" width="280" height="280"/>
+  <use href="#capDiamond" x="684" y="370" width="280" height="280"/>
+</svg>

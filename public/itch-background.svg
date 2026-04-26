@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1350" preserveAspectRatio="xMidYMid slice">
+  <title>LineMaster — itch.io background</title>
+  <defs>
+    <!-- Cosy purple-to-near-black radial — same palette as the in-game floor. -->
+    <radialGradient id="bg" cx="0.5" cy="0.4" r="0.85">
+      <stop offset="0%"  stop-color="#3a1e5c"/>
+      <stop offset="50%" stop-color="#1a0f2e"/>
+      <stop offset="100%" stop-color="#080414"/>
+    </radialGradient>
+
+    <!-- Soft gaussian halo for stations + ropes. -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+
+    <!-- Reusable colour palette — saturated but quiet at low opacity. -->
+    <linearGradient id="rope-pink"   x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF006E"/><stop offset="100%" stop-color="#FFE600"/>
+    </linearGradient>
+    <linearGradient id="rope-cyan"   x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00F5FF"/><stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="rope-lime"   x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#BFFF00"/><stop offset="100%" stop-color="#00F5FF"/>
+    </linearGradient>
+    <linearGradient id="rope-orange" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FF6B00"/><stop offset="100%" stop-color="#FF006E"/>
+    </linearGradient>
+
+    <!-- A tile of the L3 layout in miniature — verticals + horizontals + dots.
+         Repeated across the bg for a "metro plan" feel. -->
+    <symbol id="metroTile" viewBox="0 0 600 600" overflow="visible">
+      <!-- 2 verticals -->
+      <path d="M 200 60  L 200 540" stroke="url(#rope-pink)"   stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+      <path d="M 400 60  L 400 540" stroke="url(#rope-orange)" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+      <!-- 3 horizontals -->
+      <path d="M 60  180 L 540 180" stroke="url(#rope-cyan)"   stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+      <path d="M 60  300 L 540 300" stroke="url(#rope-lime)"   stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+      <path d="M 60  420 L 540 420" stroke="#A855F7"            stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+      <!-- Round caps -->
+      <g filter="url(#glow)" opacity="0.85">
+        <circle cx="200" cy="60"  r="14" fill="#FF006E"/>
+        <circle cx="200" cy="540" r="14" fill="#FF006E"/>
+        <circle cx="400" cy="60"  r="14" fill="#FF6B00"/>
+        <circle cx="400" cy="540" r="14" fill="#FF6B00"/>
+      </g>
+      <!-- Diamond caps -->
+      <g filter="url(#glow)" opacity="0.85">
+        <rect x="50"  y="170" width="20" height="20" fill="#00F5FF" transform="rotate(45 60 180)"/>
+        <rect x="530" y="170" width="20" height="20" fill="#00F5FF" transform="rotate(45 540 180)"/>
+        <rect x="50"  y="290" width="20" height="20" fill="#BFFF00" transform="rotate(45 60 300)"/>
+        <rect x="530" y="290" width="20" height="20" fill="#BFFF00" transform="rotate(45 540 300)"/>
+        <rect x="50"  y="410" width="20" height="20" fill="#A855F7" transform="rotate(45 60 420)"/>
+        <rect x="530" y="410" width="20" height="20" fill="#A855F7" transform="rotate(45 540 420)"/>
+      </g>
+    </symbol>
+
+    <!-- Pattern using the metro tile, rotated subtly so the repeats break up. -->
+    <pattern id="metro" x="0" y="0" width="600" height="600" patternUnits="userSpaceOnUse">
+      <use href="#metroTile" width="600" height="600"/>
+    </pattern>
+  </defs>
+
+  <!-- ===== Base wash ===== -->
+  <rect width="2400" height="1350" fill="url(#bg)"/>
+
+  <!-- ===== Subtle world grid — same vibe as the in-game floor grid ===== -->
+  <g stroke="#FFFFFF" stroke-width="1" opacity="0.04">
+    <path d="M 0 100 H2400 M 0 200 H2400 M 0 300 H2400 M 0 400 H2400 M 0 500 H2400 M 0 600 H2400 M 0 700 H2400 M 0 800 H2400 M 0 900 H2400 M 0 1000 H2400 M 0 1100 H2400 M 0 1200 H2400 M 0 1300 H2400"/>
+    <path d="M 100 0 V1350 M 200 0 V1350 M 300 0 V1350 M 400 0 V1350 M 500 0 V1350 M 600 0 V1350 M 700 0 V1350 M 800 0 V1350 M 900 0 V1350 M 1000 0 V1350 M 1100 0 V1350 M 1200 0 V1350 M 1300 0 V1350 M 1400 0 V1350 M 1500 0 V1350 M 1600 0 V1350 M 1700 0 V1350 M 1800 0 V1350 M 1900 0 V1350 M 2000 0 V1350 M 2100 0 V1350 M 2200 0 V1350 M 2300 0 V1350"/>
+  </g>
+
+  <!-- ===== Repeating metro layout, low opacity ===== -->
+  <rect width="2400" height="1350" fill="url(#metro)" opacity="0.18"/>
+
+  <!-- ===== Hero connections — three big, bright ropes drifting across the page ===== -->
+  <g opacity="0.55">
+    <!-- pink → yellow rope, top-left to mid-right -->
+    <path d="M -100 240 C 600 60, 1200 480, 2500 220"
+          stroke="url(#rope-pink)" stroke-width="14" stroke-linecap="round"
+          fill="none" filter="url(#glow)"/>
+    <!-- cyan → purple rope, mid-left curving down -->
+    <path d="M -100 760 C 700 920, 1500 560, 2500 880"
+          stroke="url(#rope-cyan)" stroke-width="14" stroke-linecap="round"
+          fill="none" filter="url(#glow)"/>
+    <!-- lime → cyan rope, bottom band -->
+    <path d="M -100 1180 C 800 1040, 1700 1260, 2500 1100"
+          stroke="url(#rope-lime)" stroke-width="14" stroke-linecap="round"
+          fill="none" filter="url(#glow)"/>
+  </g>
+
+  <!-- ===== Hero stations on the curves ===== -->
+  <g filter="url(#softGlow)" opacity="0.45">
+    <circle cx="200"  cy="200"  r="90" fill="#FF006E"/>
+    <circle cx="2200" cy="220"  r="90" fill="#FFE600"/>
+    <circle cx="2200" cy="880"  r="90" fill="#A855F7"/>
+    <circle cx="200"  cy="760"  r="90" fill="#00F5FF"/>
+    <circle cx="200"  cy="1180" r="90" fill="#BFFF00"/>
+    <circle cx="2200" cy="1100" r="90" fill="#00F5FF"/>
+  </g>
+
+  <!-- ===== Vignette to keep the centre readable ===== -->
+  <radialGradient id="vignette" cx="0.5" cy="0.5" r="0.6">
+    <stop offset="0%"  stop-color="#000000" stop-opacity="0"/>
+    <stop offset="70%" stop-color="#000000" stop-opacity="0.25"/>
+    <stop offset="100%" stop-color="#000000" stop-opacity="0.7"/>
+  </radialGradient>
+  <rect width="2400" height="1350" fill="url(#vignette)"/>
+</svg>

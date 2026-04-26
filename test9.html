@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Metro Evolution - Dimension Shift</title>
+    <style>
+        :root { --bg: #f0f2f5; --danger: #ff4757; --surface: #4776E6; --tunnel: #2f3542; }
+        body { margin: 0; background: var(--bg); font-family: 'Arial Rounded MT Bold', sans-serif; overflow: hidden; user-select: none; }
+        
+        #ui { position: absolute; top: 0; width: 100%; display: flex; flex-direction: column; align-items: center; z-index: 100; pointer-events: none; }
+        .header { width: 100%; padding: 20px 0; display: flex; flex-direction: column; align-items: center; }
+        
+        #level-info { font-size: 16px; color: #889; letter-spacing: 4px; margin-bottom: 8px; font-weight: bold; }
+        #timer-bar-container { width: 300px; height: 10px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #timer-bar { width: 100%; height: 100%; transition: width 0.1s linear; }
+
+        /* 维度切换按钮 */
+        #dimension-toggle {
+            position: absolute; bottom: 40px; right: 40px; width: 80px; height: 80px;
+            background: var(--surface); border-radius: 20px; pointer-events: auto;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; font-weight: bold; cursor: pointer; box-shadow: 0 8px 0 #2e51a2;
+            transition: 0.2s; z-index: 500;
+        }
+        #dimension-toggle.tunnel { background: var(--tunnel); box-shadow: 0 8px 0 #1a1e26; }
+        #dimension-toggle:active { transform: translateY(4px); box-shadow: 0 4px 0 #1a1e26; }
+
+        .modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; color: white; }
+        #fail-overlay { background: rgba(255, 71, 87, 0.95); }
+        #win-overlay { background: rgba(46, 213, 115, 0.95); }
+        .btn { background: white; color: #333; padding: 15px 45px; border-radius: 50px; margin-top: 20px; cursor: pointer; font-size: 20px; font-weight: bold; }
+        
+        canvas { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .canvas-3d { transform: perspective(1000px) rotateX(30deg) scale(0.9); }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <div class="header">
+            <div id="level-info">LEVEL 03 - DIMENSIONS</div>
+            <div id="timer-bar-container"><div id="timer-bar"></div></div>
+        </div>
+    </div>
+
+    <div id="dimension-toggle" onclick="toggleDimension()">
+        <span id="dim-text">SURFACE</span>
+        <small style="font-size: 10px; opacity: 0.7;">TAP TO SWITCH</small>
+    </div>
+
+    <div id="fail-overlay" class="modal"><h1>CRASHED!</h1><div class="btn" onclick="resetGame()">RETRY</div></div>
+    <div id="win-overlay" class="modal"><h1>DIMENSION MASTER!</h1><div class="btn" onclick="resetGame()">PLAY AGAIN</div></div>
+
+    <canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let w, h, currentLevel = 3, isGameOver = false;
+let globalTime = 0, stations = [], connections = [];
+let targetColor = '', timeLeft = 15.0, maxTime = 15.0;
+let isDrawing = false, currentPath = [];
+
+// 核心维度状态
+let currentDim = 'surface'; // 'surface' or 'tunnel'
+
+const COLORS = {
+    RED: '#FF4757', BLUE: '#1E90FF', GREEN: '#2ED573', 
+    PURPLE: '#A55EEA', ORANGE: '#FFA502'
+};
+
+function toggleDimension() {
+    if(isGameOver) return;
+    currentDim = (currentDim === 'surface' ? 'tunnel' : 'surface');
+    
+    // UI 反馈
+    const btn = document.getElementById('dimension-toggle');
+    const txt = document.getElementById('dim-text');
+    btn.className = (currentDim === 'tunnel' ? 'tunnel' : '');
+    txt.innerText = currentDim.toUpperCase();
+    
+    // 画面 3D 特效
+    canvas.className = (currentDim === 'tunnel' ? 'canvas-3d' : '');
+}
+
+function initLevel() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    stations = []; connections = []; isGameOver = false;
+    document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+    
+    // 第三关：故意放置会让线交叉的车站
+    const keys = Object.keys(COLORS);
+    keys.forEach((name, i) => {
+        // 创建 X 形交叉的布局
+        stations.push({ x: w*0.2 + (i*w*0.15), y: h*0.2, name, color: COLORS[name] });
+        stations.push({ x: w*0.8 - (i*w*0.15), y: h*0.8, name, color: COLORS[name] });
+    });
+    pickMission();
+}
+
+function pickMission() {
+    const connectedColors = connections.map(c => c.colorName);
+    const available = [...new Set(stations.map(s => s.name))].filter(n => !connectedColors.includes(n));
+
+    if(available.length === 0) {
+        isGameOver = true;
+        document.getElementById('win-overlay').style.display = 'flex';
+        return;
+    }
+    targetColor = available[Math.floor(Math.random() * available.length)];
+    timeLeft = maxTime;
+    document.getElementById('timer-bar').style.backgroundColor = COLORS[targetColor];
+}
+
+function checkCrash(x, y) {
+    for (let conn of connections) {
+        // 关键逻辑：只有在同一维度的线才会相撞！
+        if (conn.dim !== currentDim) continue; 
+        
+        for (let p of conn.path) {
+            if (Math.hypot(x - p.x, y - p.y) < 10) return true;
+        }
+    }
+    return false;
+}
+
+canvas.onmousedown = (e) => {
+    if(isGameOver) return;
+    const node = stations.find(s => Math.hypot(s.x - e.clientX, s.y - e.clientY) < 45);
+    if(node && node.name === targetColor) {
+        isDrawing = true;
+        currentPath = [{x: node.x, y: node.y}];
+    }
+};
+
+window.onmousemove = (e) => {
+    if(!isDrawing) return;
+    const x = e.clientX, y = e.clientY;
+    if(checkCrash(x, y)) {
+        isGameOver = true;
+        isDrawing = false;
+        document.getElementById('fail-overlay').style.display = 'flex';
+        return;
+    }
+    currentPath.push({x, y});
+};
+
+window.onmouseup = (e) => {
+    if(!isDrawing) return;
+    const endNode = stations.find(s => Math.hypot(s.x - e.clientX, s.y - e.clientY) < 45);
+    if(endNode && endNode.name === targetColor && currentPath.length > 5) {
+        // 记录这条线属于哪个维度
+        connections.push({ 
+            path: [...currentPath], 
+            color: COLORS[targetColor], 
+            colorName: targetColor,
+            dim: currentDim 
+        });
+        pickMission();
+    }
+    isDrawing = false;
+    currentPath = [];
+};
+
+function loop() {
+    globalTime++;
+    // 背景根据维度改变深浅
+    ctx.fillStyle = currentDim === 'surface' ? '#f0f2f5' : '#1e272e';
+    ctx.fillRect(0, 0, w, h);
+
+    // 画线
+    connections.forEach(conn => {
+        // 如果不是当前维度的线，变透明
+        ctx.globalAlpha = (conn.dim === currentDim) ? 1.0 : 0.15;
+        ctx.strokeStyle = conn.color; 
+        ctx.lineWidth = 14; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.beginPath(); ctx.moveTo(conn.path[0].x, conn.path[0].y);
+        conn.path.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+    });
+    ctx.globalAlpha = 1.0;
+
+    // 画当前线
+    if(isDrawing) {
+        ctx.strokeStyle = COLORS[targetColor]; ctx.lineWidth = 14; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(currentPath[0].x, currentPath[0].y);
+        currentPath.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke();
+    }
+
+    // 画车站
+    stations.forEach(s => {
+        let isT = s.name === targetColor;
+        ctx.save(); ctx.translate(s.x, s.y);
+        if(isT) { ctx.shadowBlur = 20; ctx.shadowColor = s.color; }
+        ctx.fillStyle = s.color; ctx.beginPath(); ctx.arc(0,0,32,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = currentDim === 'surface' ? 'white' : '#1e272e';
+        ctx.beginPath(); ctx.arc(0,0,10,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+    });
+    requestAnimationFrame(loop);
+}
+
+function resetGame() { initLevel(); }
+initLevel();
+loop();
+</script>
+</body>
+</html>
